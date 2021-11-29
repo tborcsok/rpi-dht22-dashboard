@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 from datetime import datetime as dt, timedelta as td
 
 
+data_path = '/home/pi/workspace/dht22/data'
 utc = ZoneInfo('UTC')
 localtz = ZoneInfo('Europe/Budapest')
 
@@ -21,7 +22,7 @@ def read_log(filename: str) -> pd.DataFrame:
     return df
 
 def get_sensor_data() -> pd.DataFrame:
-    files = sorted([*Path('/home/pi/workspace/dht22/data').glob('test_log_*.csv')])
+    files = sorted([*Path(data_path).glob('test_log_*.csv')])
     df = pd.concat([
         read_log(p) for p in files
     ])
