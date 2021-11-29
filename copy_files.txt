@@ -1,0 +1,4 @@
+scp -r pi@raspberrypi.local:/home/pi/workspace/dht22/data/test_log\*.csv /home/btamas/workspace/raspberry
+
+
+rsync -avhr -e ssh pi@raspberrypi.local:/home/pi/workspace/dht22/data/test_log\*.csv /home/btamas/workspace/raspberry
