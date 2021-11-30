@@ -3,26 +3,24 @@ from plotly.graph_objs import Figure
 import plotly.express as px
 import pandas as pd
 from pathlib import Path
-from zoneinfo import ZoneInfo
+import pytz
 from datetime import datetime as dt, timedelta as td
+from webapp.environ import data_path
 
 
-data_path = '/home/pi/workspace/dht22/data'
-utc = ZoneInfo('UTC')
-localtz = ZoneInfo('Europe/Budapest')
+localtz = pytz.timezone('Europe/Budapest')
 
 def read_log(filename: str) -> pd.DataFrame:
     df = pd.read_csv(filename, header=None)
     df.columns = ['time', 'temp', 'humid']
-    df['time'] = pd.to_datetime(df['time'])
-    df['time'] = df['time'].dt.tz_localize(utc)
+    df['time'] = pd.to_datetime(df['time'], utc=True)
     df['time_local'] = df['time'].dt.tz_convert(localtz)
     df = df.dropna()
 
     return df
 
 def get_sensor_data() -> pd.DataFrame:
-    files = sorted([*Path(data_path).glob('test_log_*.csv')])
+    files = sorted([*data_path.glob('test_log_*.csv')])
     df = pd.concat([
         read_log(p) for p in files
     ])
@@ -34,8 +32,8 @@ def get_sensor_data() -> pd.DataFrame:
 
 def create_visualizations() -> Tuple[Figure, Figure]:
     df = get_sensor_data()
-    fig_temp = px.line(df, 'time_local', 'temp_rolling')
-    fig_humid = px.line(df, 'time_local', 'humid_rolling')
+    fig_temp = px.line(df, 'time_local', 'temp_rolling', title='Hőmérséklet')
+    fig_humid = px.line(df, 'time_local', 'humid_rolling', title='Páratartalom')
 
     rangeselector_opts = dict(
         buttons=list([
@@ -49,13 +47,11 @@ def create_visualizations() -> Tuple[Figure, Figure]:
     fig_range = [dt.now(localtz)-td(days=1), dt.now(localtz)]
 
     fig_temp.update_xaxes(
-        rangeslider_visible=True,
         range=fig_range, 
         rangeselector=rangeselector_opts
     )
 
     fig_humid.update_xaxes(
-        rangeslider_visible=True,
         range=fig_range, 
         rangeselector=rangeselector_opts
     )
