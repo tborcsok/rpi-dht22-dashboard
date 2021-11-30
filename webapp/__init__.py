@@ -2,6 +2,7 @@ from dash import dash, dcc, html, Input, Output
 from webapp.data import create_visualizations
 
 app = dash.Dash(__name__)
+server=app.server
 
 app.layout = html.Div([
     html.H1("Szenzorértékek"),
