@@ -14,7 +14,7 @@ def read_log(filename: str) -> pd.DataFrame:
     df = pd.read_csv(filename, header=None)
     df.columns = ['time', 'temp', 'humid']
     df['time'] = pd.to_datetime(df['time'], utc=True)
-    df['time_local'] = df['time'].dt.tz_convert(localtz)
+    df['time'] = df['time'].dt.tz_convert(localtz)
     df = df.dropna()
 
     return df
@@ -24,16 +24,18 @@ def get_sensor_data() -> pd.DataFrame:
     df = pd.concat([
         read_log(p) for p in files
     ])
-    df = df.sort_values('time')
-    df[['temp_rolling', 'humid_rolling']] = df[['temp', 'humid']].rolling(9, min_periods=1, center=True).median()
+    df = df.set_index('time').sort_index()
+
+    df = df.resample("1H").mean().reset_index()
+
     df = df.dropna()
 
     return df
 
 def create_visualizations() -> Tuple[Figure, Figure]:
     df = get_sensor_data()
-    fig_temp = px.line(df, 'time_local', 'temp_rolling', title='Hőmérséklet')
-    fig_humid = px.line(df, 'time_local', 'humid_rolling', title='Páratartalom')
+    fig_temp = px.line(df, 'time', 'temp', title='Hőmérséklet')
+    fig_humid = px.line(df, 'time', 'humid', title='Páratartalom')
 
     rangeselector_opts = dict(
         buttons=list([
