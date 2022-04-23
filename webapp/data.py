@@ -34,8 +34,10 @@ def get_sensor_data() -> pd.DataFrame:
 
 def create_visualizations() -> Tuple[Figure, Figure]:
     df = get_sensor_data()
-    fig_temp = px.line(df, 'time', 'temp', title='Hőmérséklet')
-    fig_humid = px.line(df, 'time', 'humid', title='Páratartalom')
+    df[["humid_ma", "temp_ma"]] = df.rolling("2D", on="time", center=True).mean()[["humid", "temp"]]
+
+    fig_temp = px.line(df, 'time', ['temp', "temp_ma"], title='Hőmérséklet')
+    fig_humid = px.line(df, 'time', ['humid', "humid_ma"], title='Páratartalom')
 
     rangeselector_opts = dict(
         buttons=list([
