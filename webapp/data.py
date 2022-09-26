@@ -26,6 +26,9 @@ def get_sensor_data() -> pd.DataFrame:
     ])
     df = df.set_index('time').sort_index()
 
+    return df
+
+def transform_sensor_data(df: pd.DataFrame) -> pd.DataFrame:
     df = df.resample("1H").mean().reset_index()
 
     df = df.dropna()
@@ -34,6 +37,7 @@ def get_sensor_data() -> pd.DataFrame:
 
 def create_visualizations() -> Tuple[Figure, Figure]:
     df = get_sensor_data()
+    df = transform_sensor_data(df)
     df[["humid_ma", "temp_ma"]] = df.rolling("2D", on="time", center=True).mean()[["humid", "temp"]]
 
     fig_temp = px.line(df, 'time', ['temp', "temp_ma"], title='Hőmérséklet')
