@@ -29,6 +29,8 @@ def get_sensor_data() -> pd.DataFrame:
     return df
 
 def transform_sensor_data(df: pd.DataFrame) -> pd.DataFrame:
+    df = df[df["temp"].abs()<100]
+
     df = df.resample("1H").mean().reset_index()
 
     df = df.dropna()
