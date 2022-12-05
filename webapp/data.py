@@ -54,7 +54,7 @@ def create_visualizations() -> Tuple[Figure, Figure]:
         ])
     )
 
-    fig_range = [dt.now(localtz)-td(days=1), dt.now(localtz)]
+    fig_range = [dt.now(localtz)-td(days=7), dt.now(localtz)]
 
     fig_temp.update_xaxes(
         range=fig_range, 
@@ -64,6 +64,9 @@ def create_visualizations() -> Tuple[Figure, Figure]:
     fig_humid.update_xaxes(
         range=fig_range, 
         rangeselector=rangeselector_opts
+    )
+    fig_humid.update_yaxes(
+        range=[0,100]
     )
 
     return fig_temp, fig_humid
