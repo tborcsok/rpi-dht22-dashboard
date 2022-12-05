@@ -1,11 +1,12 @@
-from dash import dash, dcc, html, Input, Output
+from dash import Input, Output, dash, dcc, html
+
 from webapp.data import create_visualizations
 
 app = dash.Dash(__name__)
 server=app.server
 
 app.layout = html.Div([
-    html.H1("Szenzorértékek"),
+    html.H1("Home temperature and humidity dashboard"),
     html.Div(id='graph-container', children=[
         html.Button('Refresh data', id='refresh-button'),
         dcc.Graph(id='graph-temp', animate=True),
@@ -22,3 +23,4 @@ app.layout = html.Div([
 def update_output_div(_):
     fig_temp, fig_humid = create_visualizations()
     return fig_temp, fig_humid
+ 

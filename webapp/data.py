@@ -1,16 +1,21 @@
-from typing import Tuple
-from plotly.graph_objs import Figure
-import plotly.express as px
-import pandas as pd
+from datetime import datetime as dt
+from datetime import timedelta as td
 from pathlib import Path
+from typing import Tuple
+
+import pandas as pd
+import plotly.express as px
+import plotly.io as pio
 import pytz
-from datetime import datetime as dt, timedelta as td
+from plotly.graph_objs import Figure
+
 from webapp.environ import data_path
 
+pio.templates.default = "plotly_white"
 
 localtz = pytz.timezone('Europe/Budapest')
 
-def read_log(filename: str) -> pd.DataFrame:
+def read_log(filename: str) -> pd.DataFrame:  
     df = pd.read_csv(filename, header=None)
     df.columns = ['time', 'temp', 'humid']
     df['time'] = pd.to_datetime(df['time'], utc=True)
@@ -42,8 +47,12 @@ def create_visualizations() -> Tuple[Figure, Figure]:
     df = transform_sensor_data(df)
     df[["humid_ma", "temp_ma"]] = df.rolling("2D", on="time", center=True).mean()[["humid", "temp"]]
 
-    fig_temp = px.line(df, 'time', ['temp', "temp_ma"], title='Hőmérséklet')
-    fig_humid = px.line(df, 'time', ['humid', "humid_ma"], title='Páratartalom')
+    fig_temp = px.line(df, 'time', ['temp', "temp_ma"],
+        title='Temperature [°C]',
+    )
+    fig_humid = px.line(df, 'time', ['humid', "humid_ma"],
+        title='Relative humidity [%]',
+    )
 
     rangeselector_opts = dict(
         buttons=list([
