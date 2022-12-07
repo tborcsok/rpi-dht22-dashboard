@@ -27,3 +27,5 @@ google-chrome --new-window http://127.0.0.1:8000/ &
 
 poetry run gunicorn app:server
 ```
+
+![sample image](./docs/assets/dashboard.png)
