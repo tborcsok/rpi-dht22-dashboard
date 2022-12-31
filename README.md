@@ -28,4 +28,15 @@ google-chrome --new-window http://127.0.0.1:8000/ &
 poetry run gunicorn app:server
 ```
 
+I also added a desktop shortcut in Linux Mint to start the app more easily. Make sure to add Poetry to PATH for bash.
+
+```
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=RPI sensor app
+Exec=bash -ic $HOME/rpi.sh
+Terminal=true
+```
+
 ![sample image](./docs/assets/dashboard.png)
