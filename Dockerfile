@@ -24,6 +24,8 @@ WORKDIR /opt/app
 COPY webapp webapp
 COPY app.py .
 
+EXPOSE 8000
+
 ENTRYPOINT [ "gunicorn" ]
 
 CMD [ "app:server", "-b", "0.0.0.0", "--worker-tmp-dir", "/dev/shm" ]

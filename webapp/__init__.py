@@ -4,6 +4,8 @@ from dash import Input, Output, dash, dcc, html
 from webapp.data import create_visualizations
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SIMPLEX])
+app.css.config.serve_locally = True
+app.scripts.config.serve_locally = True
 server = app.server
 
 navbar = dbc.NavbarSimple(
