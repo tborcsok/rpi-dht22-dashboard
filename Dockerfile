@@ -23,6 +23,7 @@ WORKDIR /opt/app
 
 COPY webapp webapp
 COPY app.py .
+COPY preprocess_data.py .
 
 EXPOSE 8000
 
