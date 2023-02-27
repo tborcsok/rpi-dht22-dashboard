@@ -23,12 +23,14 @@ rsync -avhr -e ssh pi@raspberrypi.local:/<path to DHT22 repo on the Pi>/test_log
 
 cd <path to this repo on my laptop>
 
+poetry run python preprocess_data.py
+
 google-chrome --new-window http://127.0.0.1:8000/ &
 
 poetry run gunicorn app:server
 ```
 
-I also added a desktop shortcut in Linux Mint to start the app more easily. Make sure to add Poetry to PATH for bash.
+A desktop shortcut can also be added to start the app more easily. On Linux Mint I defined the shortcut as the example shows below. Make sure to add Poetry to PATH for bash.
 
 ```
 [Desktop Entry]
