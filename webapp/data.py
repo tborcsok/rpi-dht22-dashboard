@@ -49,11 +49,21 @@ def create_visualizations() -> Tuple[Figure, Figure]:
         )
     )
 
-    fig_range = [dt.now(localtz) - td(days=7), dt.now(localtz)]
+    fig_range = [dt.now(localtz) - td(days=30), dt.now(localtz)]
 
     fig_temp.update_xaxes(range=fig_range, rangeselector=rangeselector_opts)
 
     fig_humid.update_xaxes(range=fig_range, rangeselector=rangeselector_opts)
     fig_humid.update_yaxes(range=[0, 100])
+
+    for fig in [fig_temp, fig_humid]:
+        fig.add_vrect(
+            x0="2023-03-23",
+            x1="2023-04-03",
+            fillcolor="LightGray",
+            opacity=1,
+            line_width=0,
+            annotation_text="Relocation",
+        )
 
     return fig_temp, fig_humid
