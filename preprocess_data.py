@@ -39,9 +39,14 @@ duckdb.sql(
 CREATE TABLE sensor_transformed AS
 
 SELECT time_hourly as time, temp, humid,
-AVG(temp) OVER (rows between 24 preceding and 23 following) as temp_ma,
-AVG(humid) OVER (rows between 24 preceding and 23 following) as humid_ma
+AVG(temp) OVER ma as temp_ma,
+AVG(humid) OVER ma as humid_ma
 FROM sensor_hourly
+
+WINDOW ma AS (
+    ORDER BY "time_hourly" ASC
+    RANGE BETWEEN INTERVAL 1 DAYS PRECEDING
+              AND INTERVAL 1 DAYS FOLLOWING)
 """
 )
 
