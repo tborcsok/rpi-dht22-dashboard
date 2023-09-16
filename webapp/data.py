@@ -66,4 +66,13 @@ def create_visualizations() -> Tuple[Figure, Figure]:
             annotation_text="Relocation",
         )
 
+        fig.add_vrect(
+            x0="2023-05-31",
+            x1="2023-06-02",
+            fillcolor="LightGray",
+            opacity=1,
+            line_width=0,
+            annotation_text="Move",
+        )
+
     return fig_temp, fig_humid
