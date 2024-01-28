@@ -29,4 +29,4 @@ EXPOSE 8000
 
 ENTRYPOINT [ "gunicorn" ]
 
-CMD [ "app:server", "-b", "0.0.0.0", "--worker-tmp-dir", "/dev/shm", "--max-requests", "15", "--workers", "2" ]
+CMD [ "app:server", "-b", "0.0.0.0", "--worker-tmp-dir", "/dev/shm", "--max-requests", "15", "--threads", "2" ]
