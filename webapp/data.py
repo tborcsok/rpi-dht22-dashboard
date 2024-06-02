@@ -16,7 +16,6 @@ localtz = pytz.timezone("Europe/Budapest")
 
 
 def get_sensor_data() -> pd.DataFrame:
-
     df = pd.read_parquet(data_path / "sensordata.parquet")
 
     return df
@@ -63,12 +62,21 @@ def create_visualizations() -> Tuple[Figure, Figure]:
             fillcolor="LightGray",
             opacity=1,
             line_width=0,
-            annotation_text="Relocation",
+            annotation_text="Move",
         )
 
         fig.add_vrect(
             x0="2023-05-31",
             x1="2023-06-02",
+            fillcolor="LightGray",
+            opacity=1,
+            line_width=0,
+            annotation_text="Move",
+        )
+
+        fig.add_vrect(
+            x0="2024-05-24",
+            x1="2024-06-02",
             fillcolor="LightGray",
             opacity=1,
             line_width=0,
