@@ -1,4 +1,4 @@
-FROM python:3.9-slim as installer
+FROM python:3.10-slim as installer
 
 RUN apt-get update
 RUN apt-get install -y build-essential
@@ -14,7 +14,7 @@ COPY poetry.lock .
 RUN poetry install --no-root --only main
 
 # Final stage
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 COPY --from=installer /opt/.venv /opt/.venv
 ENV PATH=/opt/.venv/bin:$PATH
