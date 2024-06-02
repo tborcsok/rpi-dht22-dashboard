@@ -76,7 +76,7 @@ def create_visualizations() -> Tuple[Figure, Figure]:
 
         fig.add_vrect(
             x0="2024-05-24",
-            x1="2024-06-02",
+            x1="2024-06-03",
             fillcolor="LightGray",
             opacity=1,
             line_width=0,
