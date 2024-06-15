@@ -1,11 +1,11 @@
 from datetime import datetime as dt
-from datetime import timedelta as td
 from typing import Tuple
 
 import pandas as pd
 import plotly.express as px
 import plotly.io as pio
 import pytz
+from dateutil.relativedelta import relativedelta
 from plotly.graph_objs import Figure
 
 from webapp.environ import data_path
@@ -43,12 +43,13 @@ def create_visualizations() -> Tuple[Figure, Figure]:
                 dict(count=1, label="1d", step="day", stepmode="backward"),
                 dict(count=7, label="1w", step="day", stepmode="backward"),
                 dict(count=1, label="1m", step="month", stepmode="backward"),
+                dict(count=1, label="1y", step="year", stepmode="backward"),
                 dict(step="all"),
             ]
         )
     )
 
-    fig_range = [dt.now(localtz) - td(days=30), dt.now(localtz)]
+    fig_range = [dt.now(localtz) - relativedelta(months=1), dt.now(localtz)]
 
     fig_temp.update_xaxes(range=fig_range, rangeselector=rangeselector_opts)
 
