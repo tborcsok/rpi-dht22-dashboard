@@ -28,7 +28,7 @@ duckdb.sql(
     """
 CREATE TABLE sensor_hourly AS
 
-SELECT date_trunc('hour', time) as time_hourly, avg(temp) as temp, avg(humid) as humid FROM sensor
+SELECT date_trunc('hour', time) as time_hourly, median(temp) as temp, median(humid) as humid FROM sensor
 WHERE abs(temp) < 100 group by time_hourly order by time_hourly
 """
 )
