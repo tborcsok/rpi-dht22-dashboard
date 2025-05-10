@@ -1,58 +1,68 @@
+# %%
+import logging
+
 import duckdb
+import polars as pl
 from dotenv import load_dotenv
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
 from webapp.environ import data_path
 
-duckdb.sql(
-    f"""
-CREATE TABLE sensor_raw AS
+logger.info("loading csv")
 
-SELECT * FROM '{data_path}/*.csv'
-"""
+sensor_raw = pl.scan_csv(f"{data_path}/*.csv", has_header=False)
+
+logger.info("parse csv")
+
+time_col = (
+    pl.col("column_1")
+    .str.to_datetime("%Y-%m-%dT%H:%M:%S")
+    .dt.replace_time_zone("UTC")
+    .dt.convert_time_zone("Europe/Stockholm")
+)
+colnames = {"column_1": "time", "column_2": "temp", "column_3": "humid"}
+sensor = sensor_raw.with_columns(time_col).rename(colnames)
+
+# %%
+
+logger.info("aggregate")
+
+sensor_hourly = (
+    sensor.filter(pl.col("temp").abs() < 100)
+    .group_by(pl.col("time").dt.round("1h"), maintain_order=True)
+    .median()
 )
 
+# %%
 
-duckdb.sql(
-    """
-CREATE TABLE sensor AS
-
-SELECT column0 at time zone 'UTC' at time zone 'Europe/Budapest' as time,
-    column1 as temp, column2 as humid FROM sensor_raw
-"""
-)
-
-
-duckdb.sql(
-    """
-CREATE TABLE sensor_hourly AS
-
-SELECT date_trunc('hour', time) as time_hourly, median(temp) as temp, median(humid) as humid FROM sensor
-WHERE abs(temp) < 100 group by time_hourly order by time_hourly
-"""
-)
-
+logger.info("rolling window stats")
 
 duckdb.sql(
     """
 CREATE TABLE sensor_transformed AS
 
-SELECT time_hourly as time, temp, humid,
+SELECT time, temp, humid,
 AVG(temp) OVER ma as temp_ma,
 AVG(humid) OVER ma as humid_ma
 FROM sensor_hourly
 
 WINDOW ma AS (
-    ORDER BY "time_hourly" ASC
+    ORDER BY "time" ASC
     RANGE BETWEEN INTERVAL 1 DAYS PRECEDING
               AND INTERVAL 1 DAYS FOLLOWING)
 """
 )
 
+logger.info("save to parquet")
 
 duckdb.sql(
     f"""
 COPY sensor_transformed TO '{data_path}/sensordata.parquet' (FORMAT PARQUET)
 """
 )
+
+logger.info("done")
