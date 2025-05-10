@@ -42,3 +42,10 @@ Terminal=true
 ```
 
 ![sample image](./docs/assets/dashboard.png)
+
+## Running the Docker image locally
+
+To verify that the Docker image working, run the following commands:
+
+    docker build -t <image name>:<image tag> .
+    docker run -e DATA_PATH=/data -v ./data:/data:ro -p 8000:8000 <image name>:<image tag>

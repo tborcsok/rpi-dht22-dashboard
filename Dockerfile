@@ -1,20 +1,15 @@
-FROM python:3.10-slim as installer
+FROM python:3.12-slim as installer
 
-RUN apt-get update
-RUN apt-get install -y build-essential
-RUN pip install -U pip wheel
-RUN pip install poetry
-
+COPY --from=ghcr.io/astral-sh/uv:0.7.3 /uv /uvx /bin/
 
 WORKDIR /opt
 
-RUN poetry config virtualenvs.in-project true --local
-COPY pyproject.toml .
-COPY poetry.lock .
-RUN poetry install --no-root --only main
+COPY pyproject.toml uv.lock /opt/
+
+RUN uv sync --locked
 
 # Final stage
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 COPY --from=installer /opt/.venv /opt/.venv
 ENV PATH=/opt/.venv/bin:$PATH
