@@ -1,4 +1,9 @@
 [project]
+authors = [{ name = "Tamás Börcsök", email = "tborcsok@gmail.com" }]
+requires-python = "<4.0,>=3.10"
+name = "rpi-dht22-dashboard"
+version = "0.1.0"
+description = ""
 dependencies = [
     "dash<3.0.0,>=2.3.1",
     "gunicorn<24.0.0,>=23.0.0",
@@ -9,11 +14,6 @@ dependencies = [
     "pandas>=2.2.3",
     "pyarrow>=20.0.0",
 ]
-authors = [{ name = "Tamás Börcsök", email = "tborcsok@gmail.com" }]
-requires-python = "<4.0,>=3.10"
-name = "rpi-dht22-dashboard"
-version = "0.1.0"
-description = ""
 
 [dependency-groups]
 dev = [
