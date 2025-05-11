@@ -1,8 +1,22 @@
 # Home temperature and humidity monitor
 
-## Data collection
+A simple Dash application to visualize temperature and relative humidity measured in my home.
 
-I scheduled the script that reads sensor values every minute on my Raspberry Pi using crontab. The data collection is scheduled to run every minute.
+![sample image](./docs/assets/dashboard.png)
+
+## Running the app in Docker
+
+To verify that the Docker is image working, run the following commands:
+
+    docker build -t <image name>:<image tag> .
+    docker run -e DATA_PATH=/data -v ./data:/data --entrypoint python <image name>:<image tag> preprocess_data.py
+    docker run -e DATA_PATH=/data -v ./data:/data:ro -p 8000:8000 <image name>:<image tag>
+
+At this point the app should be reachable under the address `http://localhost:8000/`.
+
+## Data source
+
+I wrote a script that reads sensor values every minute on my Raspberry Pi using crontab. The data collection is scheduled to run every minute.
 
 The data collection script is in [this](https://github.com/tborcsok/rpi-dht22-monitor) repo.
 
@@ -40,12 +54,3 @@ Name=RPI sensor app
 Exec=bash -ic $HOME/rpi.sh
 Terminal=true
 ```
-
-![sample image](./docs/assets/dashboard.png)
-
-## Running the Docker image locally
-
-To verify that the Docker image working, run the following commands:
-
-    docker build -t <image name>:<image tag> .
-    docker run -e DATA_PATH=/data -v ./data:/data:ro -p 8000:8000 <image name>:<image tag>
