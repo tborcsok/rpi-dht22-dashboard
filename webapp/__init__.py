@@ -11,7 +11,6 @@ server = app.server
 navbar = dbc.NavbarSimple(
     children=[
         dbc.Button("Refresh data", id="refresh-button", color="secondary"),
-        # dbc.NavItem(dbc.NavLink("Page 1", href="#")),
     ],
     brand="Sensor dashboard",
     brand_href="#",
@@ -34,7 +33,10 @@ app.layout = html.Div(
 )
 
 
-@app.callback([Output("graph-temp", "figure"), Output("graph-humid", "figure")], Input("refresh-button", "n_clicks"))
+@app.callback(
+    [Output("graph-temp", "figure"), Output("graph-humid", "figure")],
+    Input("refresh-button", "n_clicks"),
+)
 def update_output_div(_):
     fig_temp, fig_humid = create_visualizations()
     return fig_temp, fig_humid
