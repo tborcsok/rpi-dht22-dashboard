@@ -9,6 +9,7 @@ import pytz
 from dateutil.relativedelta import relativedelta
 from plotly.graph_objs import Figure
 
+from webapp.config import SKIP_PERIODS
 from webapp.environ import data_path
 
 pio.templates.default = "plotly_white"
@@ -72,40 +73,14 @@ def create_visualizations() -> tuple[Figure, Figure]:
     fig_humid.update_yaxes(range=[0, 100])
 
     for fig in [fig_temp, fig_humid]:
-        fig.add_vrect(
-            x0="2023-03-23",
-            x1="2023-04-03",
-            fillcolor="LightGray",
-            opacity=1,
-            line_width=0,
-            annotation_text="Move",
-        )
-
-        fig.add_vrect(
-            x0="2023-05-31",
-            x1="2023-06-02",
-            fillcolor="LightGray",
-            opacity=1,
-            line_width=0,
-            annotation_text="Move",
-        )
-
-        fig.add_vrect(
-            x0="2024-05-24",
-            x1="2024-06-03",
-            fillcolor="LightGray",
-            opacity=1,
-            line_width=0,
-            annotation_text="Move",
-        )
-
-        fig.add_vrect(
-            x0="2025-04-28",
-            x1="2025-05-01",
-            fillcolor="LightGray",
-            opacity=1,
-            line_width=0,
-            annotation_text="Move",
-        )
+        for skip_period in SKIP_PERIODS:
+            fig.add_vrect(
+                x0=skip_period.start,
+                x1=skip_period.end,
+                fillcolor="LightGray",
+                opacity=1,
+                line_width=0,
+                annotation_text=skip_period.reason,
+            )
 
     return fig_temp, fig_humid

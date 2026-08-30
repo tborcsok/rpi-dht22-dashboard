@@ -4,6 +4,7 @@ import logging
 import duckdb
 import polars as pl
 
+from webapp.config import SKIP_PERIODS
 from webapp.environ import data_path
 
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +28,12 @@ sensor = (
     sensor_raw.with_columns(time_col)
     .rename(colnames)
     .filter(pl.col("temp").abs() < 100)
+    .filter(
+        *[
+            ~(pl.col("time").is_between(pl.lit(p.start), pl.lit(p.end)))
+            for p in SKIP_PERIODS
+        ],
+    )
     .collect()
 )
 
