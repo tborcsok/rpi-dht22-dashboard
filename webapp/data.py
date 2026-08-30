@@ -1,13 +1,15 @@
 from datetime import datetime as dt
-from typing import Tuple
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 import plotly.express as px
 import plotly.io as pio
+import polars as pl
 import pytz
 from dateutil.relativedelta import relativedelta
 from plotly.graph_objs import Figure
 
+from webapp.config import SKIP_PERIODS
 from webapp.environ import data_path
 
 pio.templates.default = "plotly_white"
@@ -15,14 +17,29 @@ pio.templates.default = "plotly_white"
 localtz = pytz.timezone("Europe/Budapest")
 
 
-def get_sensor_data() -> pd.DataFrame:
-    df = pd.read_parquet(data_path / "sensordata.parquet")
+def get_sensor_data() -> tuple[pd.DataFrame, pd.DataFrame]:
+    time_local = pl.col("time").dt.convert_time_zone("Europe/Stockholm")
+    df = (
+        pl.read_parquet(data_path / "sensordata.parquet")
+        .with_columns(time=time_local)
+        .to_pandas()
+    )
+    df_raw = (
+        pl.scan_parquet(data_path / "sensordata_readings.parquet")
+        .filter(
+            pl.col("time")
+            >= dt.now(ZoneInfo("Europe/Stockholm")) - relativedelta(weeks=3)
+        )
+        .collect()
+        .with_columns(time=time_local)
+        .to_pandas()
+    )
 
-    return df
+    return df, df_raw
 
 
-def create_visualizations() -> Tuple[Figure, Figure]:
-    df = get_sensor_data()
+def create_visualizations() -> tuple[Figure, Figure]:
+    df, df_hourly = get_sensor_data()
 
     fig_temp = px.line(
         df,
@@ -30,6 +47,7 @@ def create_visualizations() -> Tuple[Figure, Figure]:
         ["temp", "temp_ma"],
         title="Temperature [°C]",
     )
+    fig_temp.add_scatter(x=df_hourly["time"], y=df_hourly["temp"], name="raw")
     fig_humid = px.line(
         df,
         "time",
@@ -37,17 +55,15 @@ def create_visualizations() -> Tuple[Figure, Figure]:
         title="Relative humidity [%]",
     )
 
-    rangeselector_opts = dict(
-        buttons=list(
-            [
-                dict(count=1, label="1d", step="day", stepmode="backward"),
-                dict(count=7, label="1w", step="day", stepmode="backward"),
-                dict(count=1, label="1m", step="month", stepmode="backward"),
-                dict(count=1, label="1y", step="year", stepmode="backward"),
-                dict(step="all"),
-            ]
-        )
-    )
+    rangeselector_opts = {
+        "buttons": [
+            {"count": 1, "label": "1d", "step": "day", "stepmode": "backward"},
+            {"count": 7, "label": "1w", "step": "day", "stepmode": "backward"},
+            {"count": 1, "label": "1m", "step": "month", "stepmode": "backward"},
+            {"count": 1, "label": "1y", "step": "year", "stepmode": "backward"},
+            {"step": "all"},
+        ]
+    }
 
     fig_range = [dt.now(localtz) - relativedelta(months=1), dt.now(localtz)]
 
@@ -57,40 +73,14 @@ def create_visualizations() -> Tuple[Figure, Figure]:
     fig_humid.update_yaxes(range=[0, 100])
 
     for fig in [fig_temp, fig_humid]:
-        fig.add_vrect(
-            x0="2023-03-23",
-            x1="2023-04-03",
-            fillcolor="LightGray",
-            opacity=1,
-            line_width=0,
-            annotation_text="Move",
-        )
-
-        fig.add_vrect(
-            x0="2023-05-31",
-            x1="2023-06-02",
-            fillcolor="LightGray",
-            opacity=1,
-            line_width=0,
-            annotation_text="Move",
-        )
-
-        fig.add_vrect(
-            x0="2024-05-24",
-            x1="2024-06-03",
-            fillcolor="LightGray",
-            opacity=1,
-            line_width=0,
-            annotation_text="Move",
-        )
-
-        fig.add_vrect(
-            x0="2025-04-28",
-            x1="2025-05-01",
-            fillcolor="LightGray",
-            opacity=1,
-            line_width=0,
-            annotation_text="Move",
-        )
+        for skip_period in SKIP_PERIODS:
+            fig.add_vrect(
+                x0=skip_period.start,
+                x1=skip_period.end,
+                fillcolor="LightGray",
+                opacity=1,
+                line_width=0,
+                annotation_text=skip_period.reason,
+            )
 
     return fig_temp, fig_humid

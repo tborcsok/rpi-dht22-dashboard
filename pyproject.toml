@@ -1,6 +1,6 @@
 [project]
 authors = [{ name = "Tamás Börcsök", email = "tborcsok@gmail.com" }]
-requires-python = "<4.0,>=3.10"
+requires-python = "<4.0,>=3.12"
 name = "rpi-dht22-dashboard"
 version = "0.1.0"
 description = ""
@@ -17,7 +17,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "ipykernel<7.0.0,>=6.13.0",
+    "ipykernel>=6.13.0,<7.0.0",
     "black<23.0.0,>=22.10.0",
     "isort<6.0.0,>=5.10.1",
     "pylint<3.0.0,>=2.15.7",

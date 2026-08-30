@@ -3,20 +3,19 @@ import logging
 
 import duckdb
 import polars as pl
-from dotenv import load_dotenv
+
+from webapp.config import SKIP_PERIODS
+from webapp.environ import data_path
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-load_dotenv()
-
-from webapp.environ import data_path
 
 logger.info("loading csv")
 
 sensor_raw = pl.scan_csv(f"{data_path}/*.csv", has_header=False)
 
-logger.info("parse csv")
+logger.info("parse and clean csv")
 
 time_col = (
     pl.col("column_1")
@@ -25,17 +24,30 @@ time_col = (
     .dt.convert_time_zone("Europe/Stockholm")
 )
 colnames = {"column_1": "time", "column_2": "temp", "column_3": "humid"}
-sensor = sensor_raw.with_columns(time_col).rename(colnames)
+sensor = (
+    sensor_raw.with_columns(time_col)
+    .rename(colnames)
+    .filter(pl.col("temp").abs() < 100)
+    .filter(
+        *[
+            ~(pl.col("time").is_between(pl.lit(p.start), pl.lit(p.end)))
+            for p in SKIP_PERIODS
+        ],
+    )
+    .collect()
+)
+
+logger.info("save cleaned sensor readings to parquet")
+
+sensor.write_parquet(data_path / "sensordata_readings.parquet")
 
 # %%
 
 logger.info("aggregate")
 
-sensor_hourly = (
-    sensor.filter(pl.col("temp").abs() < 100)
-    .group_by(pl.col("time").dt.round("1h"), maintain_order=True)
-    .median()
-)
+sensor_hourly = sensor.group_by(
+    pl.col("time").dt.truncate("1h"), maintain_order=True
+).median()
 
 # %%
 
@@ -57,7 +69,7 @@ WINDOW ma AS (
 """
 )
 
-logger.info("save to parquet")
+logger.info("save aggregated data to parquet")
 
 duckdb.sql(
     f"""
